@@ -27,6 +27,8 @@ def detect_edges(input_folder):
             # Save the edges image to the "edges" sub-folder
             edges_filename = os.path.join(output_folder, filename)
             cv2.imwrite(edges_filename, edges)
+    
+    print('[LOG] Edge images for ' + input_folder + ' generated.')
 
 
 def check_magnitudes(input_folder, range_value):
@@ -62,6 +64,8 @@ def check_magnitudes(input_folder, range_value):
     with open(output_file, "w") as f:
         json.dump(results, f)
 
+    print('[LOG] magnitudes.json for ' + input_folder + ' generated.')
+
 
 def check_white_pixels(input_folder, range_value):
     results = {}
@@ -87,4 +91,48 @@ def check_white_pixels(input_folder, range_value):
     with open(output_file, "w") as f:
         json.dump(results, f)
 
-check_white_pixels('raw/2011_09_26_drive_0048_extract/image_03/data/edges', 32000)
+    print('[LOG] cv.json for ' + input_folder + ' generated.')
+
+
+def combine_json_files(input_folder, output_folder):
+    # Get a list of all dataset folders in the input folder
+    dataset_folders = [f for f in os.listdir(input_folder) if os.path.isdir(os.path.join(input_folder, f))]
+
+    # Loop through each dataset folder and combine the cv.json and magnitude.json files
+    for dataset_folder in dataset_folders:
+        # Load the cv.json file
+        cv_file_path = os.path.join(input_folder, dataset_folder, "image_03", "data", "edges", "cv.json")
+        with open(cv_file_path, "r") as f:
+            cv_data = json.load(f)
+
+        # Load the magnitude.json file
+        mag_file_path = os.path.join(input_folder, dataset_folder, "velodyne_points", "data", "magnitude.json")
+        with open(mag_file_path, "r") as f:
+            mag_data = json.load(f)
+
+        # Combine the two files, loop from cv since there will always be more video frames than velodyne_points.
+        combined_data = {}
+        for k in cv_data.keys():
+            combined_key = k[:-4] # Remove .png from it.
+            velodyne_key = combined_key + '.txt'
+            if velodyne_key in mag_data:
+                combined_data[combined_key] = {"edges": cv_data[k], "magnitude": mag_data[velodyne_key]}
+            else:
+                combined_data[combined_key] = {"edges": cv_data[k], "magnitude": None}
+
+
+        # Save the combined file to the output folder
+        output_file_path = os.path.join(output_folder, dataset_folder + ".json")
+        with open(output_file_path, "w") as f:
+            json.dump(combined_data, f)
+
+
+if __name__ == '__main__':
+    dataset_folders = [f for f in os.listdir('./raw') if os.path.isdir(os.path.join('./raw', f))]
+
+    for dataset in dataset_folders:
+        detect_edges(os.path.join("raw", dataset, "image_03", "data"))
+        check_magnitudes(os.path.join("raw", dataset, "velodyne_points", "data"), MAGNITUDE_RANGE)
+        check_white_pixels(os.path.join("raw", dataset, "image_03", "data", "edges"), CV_RANGE)
+    
+    combine_json_files('./raw', './jsons')
