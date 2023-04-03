@@ -1,12 +1,12 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 import os
 import json
 
 app = Flask(__name__)
 
-@app.route('/raw')
-def send_raw():
-    return app.send_static_file('raw')
+@app.route('/raw/<path:path>')
+def send_report(path):
+    return send_from_directory('raw', path)
 
 @app.route('/')
 def get_jsons():
@@ -29,4 +29,4 @@ def get_frame(file, time):
     return jsonify(value)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
