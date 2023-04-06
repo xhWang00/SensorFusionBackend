@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, send_from_directory
 import os
 import json
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/raw/<path:path>')
 def send_report(path):
