@@ -186,3 +186,4 @@ if __name__ == '__main__':
         detect_cars_in_images(os.path.join("raw", dataset, "image_03", "data"))
     
     combine_json_files('./raw', './jsons')
+
