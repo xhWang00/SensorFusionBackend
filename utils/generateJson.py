@@ -94,6 +94,50 @@ def check_white_pixels(input_folder, range_value):
     print('[LOG] cv.json for ' + input_folder + ' generated.')
 
 
+def detect_cars(image):
+    # Load the Haar Cascade XML file for cars
+    car_cascade = cv2.CascadeClassifier('./utils/cars.xml')
+
+    # Convert the image to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Detect cars using the Haar Cascade
+    cars = car_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+
+    # Return the number of cars detected
+    return len(cars)
+
+
+def detect_cars_in_images(input_folder):
+    result = {}
+
+    for filename in os.listdir(input_folder):
+        if  filename.endswith('.png'):
+            # Load the image and get its dimensions
+            image_path = os.path.join(input_folder, filename)
+            image = cv2.imread(image_path)
+            height, width, _ = image.shape
+
+            # Crop the image into four equal parts
+            top_left = image[0:height//2, 0:width//2]
+            top_right = image[0:height//2, width//2:width]
+            bottom_left = image[height//2:height, 0:width//2]
+            bottom_right = image[height//2:height, width//2:width]
+
+            # Use OpenCV to detect cars in the bottom-right and bottom-left parts
+            bottom_left_cars = detect_cars(bottom_left)
+            bottom_right_cars = detect_cars(bottom_right)
+
+            # Save the results as a dictionary
+            result[filename] = {"bottom_left": bottom_left_cars, "bottom_right": bottom_right_cars}
+
+    # Save the result dictionary as a JSON file
+    with open(os.path.join(input_folder, 'cars.json'), 'w') as outfile:
+        json.dump(result, outfile)
+
+    print('[LOG] cars.json for ' + input_folder + ' generated.')
+
+
 def combine_json_files(input_folder, output_folder):
     # Get a list of all dataset folders in the input folder
     dataset_folders = [f for f in os.listdir(input_folder) if os.path.isdir(os.path.join(input_folder, f))]
@@ -110,15 +154,20 @@ def combine_json_files(input_folder, output_folder):
         with open(mag_file_path, "r") as f:
             mag_data = json.load(f)
 
+        # Load the cars.json file
+        cars_file_path = os.path.join(input_folder, dataset_folder, "image_03", "data", "cars.json")
+        with open(cars_file_path, "r") as f:
+            cars_data = json.load(f)
+
         # Combine the two files, loop from cv since there will always be more video frames than velodyne_points.
         combined_data = {}
         for k in cv_data.keys():
             combined_key = k[:-4] # Remove .png from it.
             velodyne_key = combined_key + '.txt'
             if velodyne_key in mag_data:
-                combined_data[combined_key] = {"edges": cv_data[k], "magnitude": mag_data[velodyne_key]}
+                combined_data[combined_key] = {"edges": cv_data[k], "magnitude": mag_data[velodyne_key], "cascadeClassifier": cars_data[k]}
             else:
-                combined_data[combined_key] = {"edges": cv_data[k], "magnitude": None}
+                combined_data[combined_key] = {"edges": cv_data[k], "magnitude": None, "cascadeClassifier": cars_data[k]}
 
 
         # Save the combined file to the output folder
@@ -134,5 +183,6 @@ if __name__ == '__main__':
         detect_edges(os.path.join("raw", dataset, "image_03", "data"))
         check_magnitudes(os.path.join("raw", dataset, "velodyne_points", "data"), MAGNITUDE_RANGE)
         check_white_pixels(os.path.join("raw", dataset, "image_03", "data", "edges"), CV_RANGE)
+        detect_cars_in_images(os.path.join("raw", dataset, "image_03", "data"))
     
     combine_json_files('./raw', './jsons')
