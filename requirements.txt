@@ -2,3 +2,7 @@ opencv-python
 numpy
 flask
 flask-cors
+notebook
+scikit-learn
+pandas
+prettytable
