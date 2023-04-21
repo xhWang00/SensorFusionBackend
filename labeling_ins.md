@@ -12,7 +12,7 @@ In the folder you just unzipped, there should a folder
 ```
 , which contains many png images. Change your working directory to it.
 
-Next, please create a new file with a file name `<dataset_name>.csv`, i.e. `2011_09_26_drive_0048_extract`. 
+Next, please create a new file with a file name `<dataset_name>.csv`, i.e. `2011_09_26_drive_0048_extract.csv`. 
 
 ## 3. get all the file names
 
