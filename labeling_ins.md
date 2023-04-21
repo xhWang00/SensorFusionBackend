@@ -4,10 +4,6 @@ You will download one or mores zip files, the first step is going to unzip those
 
 ## 2. create `<dataset_name>.csv`
 
-Once you have the dataset unzipped, please create a new file with a file name `<dataset_name>.csv`, i.e. `2011_09_26_drive_0048_extract`. 
-
-## 3. get all the file names
-
 In the folder you just unzipped, there should a folder 
 ```
 /<dataset_name>
@@ -15,6 +11,10 @@ In the folder you just unzipped, there should a folder
         /data
 ```
 , which contains many png images. Change your working directory to it.
+
+Next, please create a new file with a file name `<dataset_name>.csv`, i.e. `2011_09_26_drive_0048_extract`. 
+
+## 3. get all the file names
 
 On windows with cmd:
 
