@@ -26,7 +26,7 @@ On Mac/Linux with bash:
 
 Where `<dataset_name>.csv` is the file you just created.
 
-Once that's, prepend the column names `frames,safety` to `<dataset_name>.csv`.
+Once that's done, prepend the column names `frames,safety` to `<dataset_name>.csv`.
 
 Now, the `<dataset_name>/image03/data` should look like below, and remember to remove the line `<dataset_name>.csv` from `<dataset_name>.csv`. It usually be the last line as:
 
