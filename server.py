@@ -30,5 +30,21 @@ def get_frame(file, time):
             return jsonify({'error': 'No such time in this JSON file.'}), 404
     return jsonify(value)
 
+@app.route('/results')
+def get_all_results():
+    jsons_folder = './results'
+    json_files = [f for f in os.listdir(jsons_folder) if f.endswith('.json')]
+    return jsonify(json_files)
+
+@app.route('/results/<file>')
+def get_result(file):
+    jsons_folder = './results'
+    json_file_path = os.path.join(jsons_folder, file)
+    if not os.path.isfile(json_file_path):
+        return jsonify({'error': 'No such JSON file.'}), 404
+    with open(json_file_path) as f:
+        data = json.load(f)
+        return jsonify(data)
+
 if __name__ == '__main__':
     app.run(debug=True)
