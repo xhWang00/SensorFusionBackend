@@ -68,3 +68,13 @@ And modify as needed, it shall be straightforward.
 ```bash
 $ python3 server.py
 ```
+
+## Routers
+
+| Routers | Description |
+| --- | --- |
+| `/` | List of all simi-finished algorithm result json files
+| `/raw` | The `/raw' folder
+| `/frame/<file>/<time>` | Detailed information of the simi-finished algorithm result at `<time>` of dataset `<file>`|
+| `/results` | List of all final result json files |
+| `/results/<file>` | Final result of dataset `<file>` in json
